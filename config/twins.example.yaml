@@ -1,0 +1,28 @@
+# Twin Infrastructure Configuration
+
+twins:
+  tars:
+    hostname: 192.168.1.178
+    username: tturing
+    openclaw_path: ~/clawd
+    
+  case:
+    hostname: 192.168.1.240
+    username: henryturing
+    openclaw_path: ~/clawd
+
+shared_storage:
+  type: smb
+  path: ~/nas_share
+  state_file: twin-primary.json
+
+coordination:
+  rotation: daily
+  odd_primary: tars
+  even_primary: case
+  fallback_timeout_minutes: 30
+
+monitoring:
+  health_check_interval: 5m
+  alert_channels:
+    - discord
