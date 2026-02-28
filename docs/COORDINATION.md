@@ -18,13 +18,13 @@ Each day, one twin is designated "primary." This rotates automatically:
 
 ## State File
 
-Located on shared storage (e.g., `~/nas_share/twin-primary.json`):
+Located on shared storage (e.g., `~/shared_storage/twin-primary.json`):
 
 ```json
 {
   "date": "2026-02-28",
-  "primary": "Case",
-  "secondary": "Tars",
+  "primary": "agent-b",
+  "secondary": "agent-a",
   "bothRespond": false,
   "lastUpdated": "2026-02-28T00:00:00Z"
 }
@@ -40,7 +40,7 @@ Located on shared storage (e.g., `~/nas_share/twin-primary.json`):
 
 ### Secondary Agent
 Responds only when:
-1. **Explicitly named** — "Hey Tars, what do you think?"
+1. **Explicitly named** — "Hey Agent A, what do you think?"
 2. **Primary offline** — No activity for >30 minutes
 3. **Machine-specific task** — "Check your disk space"
 4. **Both requested** — "Both of you answer this"
@@ -82,7 +82,7 @@ def should_respond(message):
 
 User can force behavior:
 - "Both of you" → Both respond
-- "Just Tars" / "Just Case" → Named agent only
+- "Just Agent A" / "Just Agent B" → Named agent only
 - Edit state file directly for persistent changes
 
 ## Troubleshooting

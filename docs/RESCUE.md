@@ -12,48 +12,25 @@ Each twin should be able to recover the other from common failure states.
 
 ## Rescue Script
 
-Located at `scripts/rescue-twin.sh`:
+Located at `scripts/rescue-twin.sh`. Configure targets in `config/twins.yaml`:
 
+```yaml
+twins:
+  agent-a:
+    hostname: <AGENT_A_IP>
+    username: <AGENT_A_USER>
+    openclaw_path: ~/your-workspace
+    
+  agent-b:
+    hostname: <AGENT_B_IP>
+    username: <AGENT_B_USER>
+    openclaw_path: ~/your-workspace
+```
+
+Then run:
 ```bash
-#!/bin/bash
-# Rescue a failed twin
-
-TARGET=$1  # "tars" or "case"
-
-case $TARGET in
-  tars)
-    SSH_HOST="tturing@192.168.1.178"
-    ;;
-  case)
-    SSH_HOST="henryturing@192.168.1.240"
-    ;;
-  *)
-    echo "Usage: rescue-twin.sh [tars|case]"
-    exit 1
-    ;;
-esac
-
-echo "Attempting to rescue $TARGET..."
-
-# Check if reachable
-if ! ssh -o ConnectTimeout=10 $SSH_HOST "echo 'alive'" 2>/dev/null; then
-    echo "❌ Cannot reach $TARGET - may need physical intervention"
-    exit 1
-fi
-
-# Restart OpenClaw service
-ssh $SSH_HOST "cd ~/clawd && openclaw gateway restart"
-
-echo "✓ Restart command sent to $TARGET"
-echo "Waiting for heartbeat..."
-
-# Wait and verify
-sleep 30
-if ssh $SSH_HOST "pgrep -f openclaw" >/dev/null; then
-    echo "✓ $TARGET appears to be running"
-else
-    echo "⚠ $TARGET may not have started correctly"
-fi
+./scripts/rescue-twin.sh agent-a  # Rescue Agent A
+./scripts/rescue-twin.sh agent-b  # Rescue Agent B
 ```
 
 ## Common Recovery Actions
@@ -70,7 +47,7 @@ ssh $TWIN_HOST "sudo reboot"
 
 ### 3. Config Restore
 ```bash
-scp ~/nas_share/config-backup/openclaw.json $TWIN_HOST:~/.config/openclaw/
+scp ~/shared_storage/config-backup/openclaw.json $TWIN_HOST:~/.config/openclaw/
 ```
 
 ### 4. Log Check

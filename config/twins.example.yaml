@@ -1,28 +1,32 @@
 # Twin Infrastructure Configuration
+# Copy this file to twins.yaml and fill in your actual values.
+# NEVER commit twins.yaml to version control!
 
 twins:
-  tars:
-    hostname: 192.168.1.178
-    username: tturing
-    openclaw_path: ~/clawd
+  agent-a:
+    hostname: <AGENT_A_IP_OR_HOSTNAME>  # e.g., 192.168.1.100
+    username: <AGENT_A_USERNAME>         # SSH username
+    openclaw_path: ~/workspace           # Path to OpenClaw workspace
     
-  case:
-    hostname: 192.168.1.240
-    username: henryturing
-    openclaw_path: ~/clawd
+  agent-b:
+    hostname: <AGENT_B_IP_OR_HOSTNAME>  # e.g., 192.168.1.101
+    username: <AGENT_B_USERNAME>         # SSH username
+    openclaw_path: ~/workspace           # Path to OpenClaw workspace
 
 shared_storage:
-  type: smb
-  path: ~/nas_share
-  state_file: twin-primary.json
+  type: smb                              # smb, nfs, or cloud
+  path: ~/shared_storage                 # Local mount point
+  state_file: twin-primary.json          # Coordination state filename
 
 coordination:
-  rotation: daily
-  odd_primary: tars
-  even_primary: case
-  fallback_timeout_minutes: 30
+  rotation: daily                        # daily, manual
+  odd_primary: agent-a                   # Primary on odd dates
+  even_primary: agent-b                  # Primary on even dates
+  fallback_timeout_minutes: 30           # When to consider primary offline
 
 monitoring:
   health_check_interval: 5m
   alert_channels:
     - discord
+    # - telegram
+    # - email

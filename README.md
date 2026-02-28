@@ -19,7 +19,6 @@ Prevents duplicate responses when both agents have access to the same channels.
 ```
 ┌──────────┐     shared state      ┌──────────┐
 │  Agent A │◄─────────────────────►│  Agent B │
-│  (Tars)  │                       │  (Case)  │
 └────┬─────┘                       └────┬─────┘
      │                                  │
      │         ┌─────────────┐          │
@@ -42,8 +41,8 @@ Automated recovery when one instance fails.
 
 ```bash
 # From healthy twin, restore failed twin:
-./scripts/rescue-twin.sh case  # If Tars is healthy, rescue Case
-./scripts/rescue-twin.sh tars  # If Case is healthy, rescue Tars
+./scripts/rescue-twin.sh agent-b  # If Agent A is healthy, rescue Agent B
+./scripts/rescue-twin.sh agent-a  # If Agent B is healthy, rescue Agent A
 ```
 
 Features:
@@ -57,7 +56,7 @@ See [RESCUE.md](./docs/RESCUE.md) for details.
 ### 3. State Synchronization
 Keep both twins aware of shared context.
 
-**Synchronized via NAS:**
+**Synchronized via shared storage:**
 - Coordination state (`twin-primary.json`)
 - Shared documents and knowledge
 - Backup configurations
@@ -75,9 +74,9 @@ Detect failures early.
 ./scripts/twin-status.sh
 
 # Output:
-# Tars: ✓ Online (last seen: 2 min ago)
-# Case: ✓ Online (last seen: 5 min ago)
-# Primary today: Case (even date)
+# Agent A: ✓ Online (last seen: 2 min ago)
+# Agent B: ✓ Online (last seen: 5 min ago)
+# Primary today: Agent B (even date)
 ```
 
 ## Setup
@@ -85,30 +84,36 @@ Detect failures early.
 ### Prerequisites
 - Two machines running OpenClaw
 - SSH access between machines
-- Shared storage (NAS, cloud sync)
+- Shared storage (NAS, cloud sync, etc.)
 - Configured channels (Discord, Telegram, etc.)
 
 ### Installation
 
 1. Clone this repo to both machines:
 ```bash
-git clone https://github.com/marksunner/openclaw-twin-infrastructure.git
+git clone https://github.com/yourusername/openclaw-twin-infrastructure.git
 ```
 
-2. Configure SSH access:
+2. Copy and edit the configuration:
+```bash
+cp config/twins.example.yaml config/twins.yaml
+# Edit twins.yaml with your actual hostnames, IPs, usernames
+```
+
+3. Configure SSH access:
 ```bash
 # On each twin, generate and exchange keys
 ssh-keygen -t ed25519 -f ~/.ssh/twin_rescue
 # Add public key to other twin's authorized_keys
 ```
 
-3. Set up shared storage mount:
+4. Set up shared storage mount (example):
 ```bash
-# Example for NAS
-mount_smbfs '//user:pass@nas/share' ~/nas_share
+# NAS mount example - adjust for your setup
+mount_smbfs '//user:pass@nas-hostname/share' ~/shared_storage
 ```
 
-4. Initialize coordination state:
+5. Initialize coordination state:
 ```bash
 ./scripts/init-twin-state.sh
 ```
@@ -126,7 +131,8 @@ mount_smbfs '//user:pass@nas/share' ~/nas_share
 │   ├── twin-status.sh     # Health check
 │   └── init-twin-state.sh # Initial setup
 ├── config/
-│   └── twins.example.yaml # Configuration template
+│   ├── twins.example.yaml # Configuration template (commit this)
+│   └── twins.yaml         # Your actual config (gitignored)
 └── README.md
 ```
 
@@ -137,10 +143,14 @@ mount_smbfs '//user:pass@nas/share' ~/nas_share
 - **Fail safe** — When in doubt, alert human
 - **Transparency** — All state in plain text files
 
+## Security Note
+
+The `config/twins.yaml` file contains your actual infrastructure details and is gitignored. Never commit real IPs, hostnames, or usernames to public repositories.
+
 ## License
 
 MIT
 
 ---
 
-*Built with 🔭🕯️ by twins who keep each other running.*
+*Built for resilient AI agent deployments.*
